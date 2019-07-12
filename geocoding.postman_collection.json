@@ -1,0 +1,228 @@
+{
+	"info": {
+		"_postman_id": "ad429105-0371-48b3-940f-f68949885c26",
+		"name": "geocoding",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "geocode",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "55e03d2c-6e96-48ff-80cf-36663955de1f",
+						"exec": [
+							"//I think this represents a smoke test because when this test is over it means",
+							"//the resource has been fetched and is transmitted in the message body",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Checking if response includes results",
+							"pm.test(\"Response includes results\", function(){",
+							"    pm.expect(pm.response.json()).to.include.keys(\"results\");",
+							"});",
+							"",
+							"let jsonData = pm.response.json().results[0];",
+							"",
+							"//Taking lat, lng and formatted_address from response ",
+							"let lat = jsonData.geometry.location.lat;",
+							"let lng = jsonData.geometry.location.lng;",
+							"let formatted_address=jsonData.formatted_address;",
+							"",
+							"//Setting lat, lng and formatted_address as environment variables",
+							"pm.environment.set('lat', lat);",
+							"pm.environment.set('lng', lng);",
+							"pm.environment.set('formatted_address',formatted_address);",
+							"",
+							"//Test is checking if the latitude and longitude from response ",
+							"//are equal to the latitude and longitude we got from Google Maps Platform",
+							"pm.test(\"Latitude and longitude test\", function () {",
+							"      pm.expect(lat).to.eql(43.859721);",
+							"      pm.expect(lng).to.eql(18.431241);",
+							"});",
+							"",
+							"//Test is checking if the address from response is equal to the address we got from Google Maps Platform.",
+							"//Real address of our search:\"Sebilj Sarajevo\" is \"Baščaršija, Sarajevo 71000, Bosnia and Herzegovina\"",
+							"pm.test(\"Address test 1\", function () {",
+							"      pm.expect(formatted_address).to.eql('Baščaršija, Sarajevo 71000, Bosnia and Herzegovina');",
+							"});",
+							"",
+							"//Test is checking if the address from response is equal to the address we sent in request",
+							"//As expected, this test will fail because \"Sebilj Sarajevo\" is not the address",
+							"pm.test(\"Address test 2\", function () {",
+							"      pm.expect(formatted_address).to.eql('Sebilj Sarajevo');",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "2ac2acfa-a8ef-498c-90f0-c104a1fc79f8",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "oauth1",
+					"oauth1": [
+						{
+							"key": "signatureMethod",
+							"value": "HMAC-SHA1",
+							"type": "string"
+						},
+						{
+							"key": "version",
+							"value": "1.0",
+							"type": "string"
+						},
+						{
+							"key": "addParamsToHeader",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "addEmptyParamsToSign",
+							"value": false,
+							"type": "boolean"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://maps.googleapis.com/maps/api/geocode/json?address=sebilj+sarajevo&key={{GeocodingAPIkey}}",
+					"protocol": "https",
+					"host": [
+						"maps",
+						"googleapis",
+						"com"
+					],
+					"path": [
+						"maps",
+						"api",
+						"geocode",
+						"json"
+					],
+					"query": [
+						{
+							"key": "address",
+							"value": "sebilj+sarajevo"
+						},
+						{
+							"key": "key",
+							"value": "{{GeocodingAPIkey}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "reversegeocode",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3edd54ed-01c9-4a92-bc89-170d4f0e7bdf",
+						"exec": [
+							"//I think this represents a smoke test because when this test is over it means",
+							"//the resource has been fetched and is transmitted in the message body",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Checking if response includes results",
+							"pm.test(\"Response includes results\", function(){",
+							"    pm.expect(pm.response.json()).to.include.keys(\"results\");",
+							"});",
+							"",
+							"let jsonData = pm.response.json().results[0];",
+							"",
+							"//Taking formatted_address from response",
+							"let formatted_address=jsonData.formatted_address;",
+							"pm.environment.set('formatted_address',formatted_address);",
+							"",
+							"",
+							"//Test is checking if the address from response is equal to the address we got from Google Maps Platform",
+							"//for these values of latitude and longitude (43.859721,18.431241)",
+							"pm.test(\"Address test 1\", function () {",
+							"      pm.expect(formatted_address).to.eql('Baščaršija 1, Sarajevo 71000, Bosnia and Herzegovina');",
+							"});",
+							"",
+							"//As expected, this test will fail because Baščaršija is the name of a street ",
+							"//but we are searching for one street number",
+							"pm.test(\"Address test 2\", function () {",
+							"      pm.expect(formatted_address).to.eql('Baščaršija, Sarajevo 71000, Bosnia and Herzegovina');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "oauth1",
+					"oauth1": [
+						{
+							"key": "signatureMethod",
+							"value": "HMAC-SHA1",
+							"type": "string"
+						},
+						{
+							"key": "version",
+							"value": "1.0",
+							"type": "string"
+						},
+						{
+							"key": "addParamsToHeader",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "addEmptyParamsToSign",
+							"value": false,
+							"type": "boolean"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://maps.googleapis.com/maps/api/geocode/json?latlng=43.859721,18.431241&key={{GeocodingAPIkey}}",
+					"protocol": "https",
+					"host": [
+						"maps",
+						"googleapis",
+						"com"
+					],
+					"path": [
+						"maps",
+						"api",
+						"geocode",
+						"json"
+					],
+					"query": [
+						{
+							"key": "latlng",
+							"value": "43.859721,18.431241"
+						},
+						{
+							"key": "key",
+							"value": "{{GeocodingAPIkey}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
